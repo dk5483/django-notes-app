@@ -2,34 +2,35 @@ pipeline {
     agent any 
     
     stages{
-        stage("Clone Code"){
+        stage("Code"){
             steps {
-                echo "Cloning the code"
-                git url:"https://github.com/LondheShubham153/django-notes-app.git", branch: "main"
+                echo "cloning the code"
+                git url: "https://github.com/dk5483/django-notes-app.git", branch: "main"
             }
         }
-        stage("Build"){
-            steps {
-                echo "Building the image"
-                sh "docker build -t my-note-app ."
+        stage("build"){
+            steps{
+                echo "building the image"
+                sh "docker build -t django-note-app ."
             }
+            
         }
-        stage("Push to Docker Hub"){
+        stage("Push to Docker hub"){
             steps {
-                echo "Pushing the image to docker hub"
-                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
-                sh "docker tag my-note-app ${env.dockerHubUser}/my-note-app:latest"
-                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker push ${env.dockerHubUser}/my-note-app:latest"
+                echo "pushing to docker hub"
+                withCredentials([usernamePassword(credentialsId: "dockerhub", passwordVariable: "dockerPass", usernameVariable: "dockerUser")]) {
+                    sh "docker tag django-note-app ${env.dockerUser}/django-note-app:latest"
+                    sh "docker login -u ${env.dockerUser} -p '${env.dockerPass}'"
+                    sh "docker push ${env.dockerUser}/django-note-app:latest"
                 }
             }
         }
         stage("Deploy"){
-            steps {
-                echo "Deploying the container"
+            steps{
+                echo "deploying the container"
                 sh "docker-compose down && docker-compose up -d"
-                
             }
+            
         }
     }
 }
